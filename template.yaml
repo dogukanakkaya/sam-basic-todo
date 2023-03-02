@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: Stack for example Serverless API to send mails
+Description: Stack for example Serverless API
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 10
 Resources:
   InsertTodoFunction:
     Type: AWS::Serverless::Function
@@ -31,15 +31,14 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: partitionKey
+        - AttributeName: id
           AttributeType: S
-        - AttributeName: sortKey
-          AttributeType: N
       KeySchema:
-        - AttributeName: partitionKey
+        - AttributeName: id
           KeyType: HASH
-        - AttributeName: sortKey
-          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 3
+        WriteCapacityUnits: 3
       TableName: TodoTable
 Outputs:
   InsertTodoFunction:

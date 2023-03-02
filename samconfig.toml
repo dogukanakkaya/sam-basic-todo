@@ -5,7 +5,7 @@ version = 0.1
 [default]
 [default.global]
 [default.global.parameters]
-stack_name = "sqs-ses-example"
+stack_name = "sam-serverless-example"
 
 [default.build]
 [default.build.parameters]

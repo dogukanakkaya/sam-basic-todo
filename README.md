@@ -18,7 +18,7 @@ make delete
 
 <br>
 
-### Start API Localy
+### Start API Locally
 
 ```
 make start-api

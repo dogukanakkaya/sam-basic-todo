@@ -8,6 +8,9 @@ Globals:
     Runtime: nodejs18.x
     Architectures:
       - x86_64
+    Environment:
+      Variables:
+        TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
 Resources:
   CreateTodoFunction:
     Type: AWS::Serverless::Function
@@ -22,7 +25,6 @@ Resources:
       Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
-          TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
           EMAIL_QUEUE_URL: !GetAtt EmailQueue.QueueUrl
     Metadata:
       BuildMethod: esbuild
@@ -45,9 +47,6 @@ Resources:
             Path: /{id}
             Method: delete
       Role: !GetAtt LambdaRole.Arn
-      Environment:
-        Variables:
-          TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -68,9 +67,6 @@ Resources:
             Path: /
             Method: get
       Role: !GetAtt LambdaRole.Arn
-      Environment:
-        Variables:
-          TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -157,6 +153,7 @@ Resources:
                 Condition:
                   StringEquals:
                     ses:FromAddress: doguakkaya27@hotmail.com
+# Outputs to be used later when EmailQueue is moved to another stack
 # Outputs:
 #   EmailQueueArn:
 #     Value: !GetAtt EmailQueue.Arn

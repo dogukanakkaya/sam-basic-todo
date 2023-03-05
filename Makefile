@@ -1,4 +1,4 @@
-.PHONY: build delete deploy start-api
+.PHONY: build delete deploy start-api test
 
 build:
 	sam build
@@ -8,5 +8,5 @@ deploy:
 	make build && sam deploy -g
 start-api:
 	make build && sam local start-api --env-vars todo/env.json
-invoke:
-	sam local invoke
+test:
+	cd todo && npm run test && cd ..

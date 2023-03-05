@@ -12,4 +12,5 @@ export default {
     coverageDirectory: 'coverage',
     coverageProvider: 'v8',
     testMatch: ['**/tests/unit/*.test.ts'],
+    setupFiles: ["<rootDir>/jest.setup.ts"]
 };

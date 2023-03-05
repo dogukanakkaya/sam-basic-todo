@@ -1,8 +1,7 @@
 {
-  "name": "hello_world",
+  "name": "todo",
   "version": "1.0.0",
   "description": "hello world sample for NodeJS",
-  "main": "app.js",
   "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
   "author": "SAM CLI",
   "license": "MIT",
@@ -16,8 +15,8 @@
     "@aws-sdk/client-dynamodb": "^3.282.0",
     "@aws-sdk/client-ses": "^3.282.0",
     "@aws-sdk/client-sqs": "^3.282.0",
-    "esbuild": "^0.14.14",
-    "nanoid": "^4.0.1",
+    "@paralleldrive/cuid2": "^2.2.0",
+    "esbuild": "^0.17.11",
     "zod": "^3.20.6"
   },
   "devDependencies": {

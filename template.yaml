@@ -4,15 +4,15 @@ Description: Stack for example Serverless API
 Globals:
   Function:
     Timeout: 10
+    CodeUri: todo/
+    Runtime: nodejs18.x
+    Architectures:
+      - x86_64
 Resources:
   CreateTodoFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: todo/
       Handler: create.lambdaHandler
-      Runtime: nodejs18.x
-      Architectures:
-        - x86_64
       Events:
         ApiGatewayEvent:
           Type: Api
@@ -29,7 +29,6 @@ Resources:
       BuildProperties:
         Minify: true
         Target: es2020
-        Sourcemap: true
         EntryPoints:
           - create.ts
     DependsOn:
@@ -38,11 +37,7 @@ Resources:
   DeleteTodoFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: todo/
       Handler: delete.lambdaHandler
-      Runtime: nodejs18.x
-      Architectures:
-        - x86_64
       Events:
         ApiGatewayEvent:
           Type: Api
@@ -58,7 +53,6 @@ Resources:
       BuildProperties:
         Minify: true
         Target: es2020
-        Sourcemap: true
         EntryPoints:
           - delete.ts
     DependsOn:
@@ -66,11 +60,7 @@ Resources:
   FetchTodosFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: todo/
       Handler: fetch.lambdaHandler
-      Runtime: nodejs18.x
-      Architectures:
-        - x86_64
       Events:
         ApiGatewayEvent:
           Type: Api
@@ -86,19 +76,14 @@ Resources:
       BuildProperties:
         Minify: true
         Target: es2020
-        Sourcemap: true
         EntryPoints:
           - fetch.ts
     DependsOn:
       - DynamoDBTodoTable
-  EmailQueueConsumer:
+  EmailQueueConsumerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: todo/
       Handler: email-queue-consumer.lambdaHandler
-      Runtime: nodejs18.x
-      Architectures:
-        - x86_64
       Events:
         EmailSQSEvent:
           Type: SQS
@@ -113,11 +98,14 @@ Resources:
       BuildProperties:
         Minify: true
         Target: es2020
-        Sourcemap: true
         EntryPoints:
           - email-queue-consumer.ts
     DependsOn:
       - EmailQueue
+  EmailQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-email-queue
   DynamoDBTodoTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -130,10 +118,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 3
         WriteCapacityUnits: 3
-  EmailQueue:
-    Type: "AWS::SQS::Queue"
-    Properties:
-      QueueName: !Sub ${AWS::StackName}-email-queue
   LambdaSQSRole:
     Type: AWS::IAM::Role
     Properties:
@@ -170,15 +154,13 @@ Resources:
                 Action:
                   - ses:SendEmail
                 Resource: "*"
-Outputs:
-  CreateTodoFunction:
-    Description: Create Todo Lambda Function ARN
-    Value: !GetAtt CreateTodoFunction.Arn
-  DynamoDBTodoTableName:
-    Value: !Ref DynamoDBTodoTable
-  EmailQueueArn:
-    Value: !GetAtt EmailQueue.Arn
-    Description: "ARN of the EmailQueue"
-  EmailQueueUrl:
-    Value: !GetAtt EmailQueue.QueueUrl
-    Description: "URL of the EmailQueue"
+                Condition:
+                  StringEquals:
+                    ses:FromAddress: doguakkaya27@hotmail.com
+# Outputs:
+#   EmailQueueArn:
+#     Value: !GetAtt EmailQueue.Arn
+#     Description: "ARN of the EmailQueue"
+#   EmailQueueUrl:
+#     Value: !GetAtt EmailQueue.QueueUrl
+#     Description: "URL of the EmailQueue"

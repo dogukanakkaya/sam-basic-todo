@@ -58,6 +58,32 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - delete.ts
+  FetchTodosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: todo/
+      Handler: fetch.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Events:
+        ApiGatewayEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+      Role: !GetAtt LambdaSQSRole.Arn
+      Environment:
+        Variables:
+          TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+          - fetch.ts
     DependsOn:
       - DynamoDBTodoTable
       - EmailQueue

@@ -14,3 +14,10 @@ export const handleError = (err: unknown): APIGatewayProxyResult => {
         body: JSON.stringify(err),
     };
 }
+
+export const Todo = z.object({
+    title: z.string().max(25),
+    description: z.string(),
+    assignee: z.string().email()
+});
+export type Todo = z.infer<typeof Todo> & { id: string };

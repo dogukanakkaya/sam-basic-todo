@@ -1,5 +1,11 @@
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { APIGatewayProxyResult } from "aws-lambda";
 import { z } from "zod";
+import { REGION } from "./config";
+import { SQSClient } from "@aws-sdk/client-sqs";
+
+export const dynamoDBClient = new DynamoDBClient({ region: REGION });
+export const sqsClient = new SQSClient({ region: REGION });
 
 export const handleError = (err: unknown): APIGatewayProxyResult => {
     if (err instanceof z.ZodError) {

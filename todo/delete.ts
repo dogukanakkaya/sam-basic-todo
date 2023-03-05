@@ -1,10 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { DeleteItemCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DeleteItemCommand } from "@aws-sdk/client-dynamodb";
 import { z } from 'zod';
-import { REGION, TODO_TABLE_NAME } from './config';
-import { handleError } from './helper';
-
-const dynamoDBClient = new DynamoDBClient({ region: REGION });
+import { TODO_TABLE_NAME } from './config';
+import { dynamoDBClient, handleError } from './helper';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {

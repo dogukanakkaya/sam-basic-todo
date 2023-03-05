@@ -1,12 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { SendMessageCommand } from "@aws-sdk/client-sqs";
 import { nanoid } from 'nanoid';
-import { EMAIL_QUEUE_URL, REGION, TODO_TABLE_NAME } from './config';
-import { Todo, handleError } from './helper';
-
-const dynamoDBClient = new DynamoDBClient({ region: REGION });
-const sqsClient = new SQSClient({ region: REGION });
+import { EMAIL_QUEUE_URL, TODO_TABLE_NAME } from './config';
+import { Todo, dynamoDBClient, handleError, sqsClient } from './helper';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {

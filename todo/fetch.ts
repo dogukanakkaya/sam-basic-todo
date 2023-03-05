@@ -1,9 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
-import { REGION, TODO_TABLE_NAME } from './config';
-import { handleError } from './helper';
-
-const dynamoDBClient = new DynamoDBClient({ region: REGION });
+import { ScanCommand } from "@aws-sdk/client-dynamodb";
+import { TODO_TABLE_NAME } from './config';
+import { dynamoDBClient, handleError } from './helper';
 
 export const lambdaHandler = async (): Promise<APIGatewayProxyResult> => {
     try {

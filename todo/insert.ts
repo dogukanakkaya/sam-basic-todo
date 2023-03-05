@@ -3,15 +3,11 @@ import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
+import { EMAIL_QUEUE_URL, REGION, TODO_TABLE_NAME } from './config';
+import { handleError } from './helper';
 
-const config = {
-    REGION: 'us-east-1',
-    TODO_TABLE_NAME: process.env.TODO_TABLE_NAME as string,
-    EMAIL_QUEUE_URL: process.env.EMAIL_QUEUE_URL as string
-} as const;
-
-const dynamoDBClient = new DynamoDBClient({ region: config.REGION });
-const sqsClient = new SQSClient({ region: config.REGION });
+const dynamoDBClient = new DynamoDBClient({ region: REGION });
+const sqsClient = new SQSClient({ region: REGION });
 
 const Todo = z.object({
     title: z.string().max(25),
@@ -27,7 +23,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const id = nanoid();
 
         await dynamoDBClient.send(new PutItemCommand({
-            TableName: config.TODO_TABLE_NAME,
+            TableName: TODO_TABLE_NAME,
             Item: {
                 id: { S: id },
                 title: { S: todo.title },
@@ -37,7 +33,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         }));
 
         await sqsClient.send(new SendMessageCommand({
-            QueueUrl: config.EMAIL_QUEUE_URL,
+            QueueUrl: EMAIL_QUEUE_URL,
             MessageBody: JSON.stringify({ todo }),
         }));
 
@@ -46,16 +42,6 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             body: JSON.stringify({ id, ...todo }),
         };
     } catch (err: any) {
-        if (err instanceof z.ZodError) {
-            return {
-                statusCode: 422,
-                body: JSON.stringify(err.issues),
-            };
-        }
-
-        return {
-            statusCode: 500,
-            body: JSON.stringify(err),
-        };
+        return handleError(err);
     }
 };

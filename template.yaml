@@ -17,7 +17,7 @@ Resources:
         ApiGatewayEvent:
           Type: Api
           Properties:
-            Path: /insert
+            Path: /
             Method: post
       Role: !GetAtt LambdaSQSRole.Arn
       Environment:
@@ -32,6 +32,32 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - insert.ts
+  DeleteTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: todo/
+      Handler: delete.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Events:
+        ApiGatewayEvent:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: delete
+      Role: !GetAtt LambdaSQSRole.Arn
+      Environment:
+        Variables:
+          TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+          - delete.ts
     DependsOn:
       - DynamoDBTodoTable
       - EmailQueue

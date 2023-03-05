@@ -19,7 +19,7 @@ Resources:
           Properties:
             Path: /
             Method: post
-      Role: !GetAtt LambdaSQSRole.Arn
+      Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
           TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
@@ -44,7 +44,7 @@ Resources:
           Properties:
             Path: /{id}
             Method: delete
-      Role: !GetAtt LambdaSQSRole.Arn
+      Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
           TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
@@ -67,7 +67,7 @@ Resources:
           Properties:
             Path: /
             Method: get
-      Role: !GetAtt LambdaSQSRole.Arn
+      Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
           TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
@@ -89,7 +89,7 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt EmailQueue.Arn
-      Role: !GetAtt LambdaSQSRole.Arn
+      Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
           EMAIL_QUEUE_URL: !GetAtt EmailQueue.QueueUrl
@@ -118,7 +118,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 3
         WriteCapacityUnits: 3
-  LambdaSQSRole:
+  LambdaRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -132,7 +132,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: MyLambdaPolicy
+        - PolicyName: LambdaPolicy
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -147,7 +147,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:PutItem
-                  - dynamodb:GetItem
+                  - dynamodb:Scan
                   - dynamodb:DeleteItem
                 Resource: !GetAtt DynamoDBTodoTable.Arn
               - Effect: Allow

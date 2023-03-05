@@ -3,6 +3,20 @@
         {
             "type": "aws-sam",
             "request": "direct-invoke",
+            "name": "sqs-ses-example:InsertTodoFunction",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yaml",
+                "logicalId": "InsertTodoFunction"
+            },
+            "lambda": {
+                "payload": {},
+                "environmentVariables": {}
+            }
+        },
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
             "name": "sqs-ses-example:HelloWorldFunction",
             "invokeTarget": {
                 "target": "template",

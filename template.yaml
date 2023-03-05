@@ -19,6 +19,11 @@ Resources:
           Properties:
             Path: /insert
             Method: post
+      Role: !GetAtt LambdaSQSRole.Arn
+      Environment:
+        Variables:
+          TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
+          EMAIL_QUEUE_URL: !GetAtt EmailQueue.QueueUrl
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -27,7 +32,10 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - insert.ts
-  DynamoDBTable:
+    DependsOn:
+      - DynamoDBTodoTable
+      - EmailQueue
+  DynamoDBTodoTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -39,8 +47,50 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 3
         WriteCapacityUnits: 3
-      TableName: TodoTable
+  EmailQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-email-queue
+  LambdaSQSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: MyLambdaPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                Resource: !GetAtt EmailQueue.Arn
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                Resource: !GetAtt DynamoDBTodoTable.Arn
 Outputs:
   InsertTodoFunction:
     Description: Insert Todo Lambda Function ARN
     Value: !GetAtt InsertTodoFunction.Arn
+  DynamoDBTodoTableName:
+    Value: !Ref DynamoDBTodoTable
+  EmailQueueArn:
+    Value: !GetAtt EmailQueue.Arn
+    Description: "ARN of the EmailQueue"
+  EmailQueueUrl:
+    Value: !GetAtt EmailQueue.QueueUrl
+    Description: "URL of the EmailQueue"

@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { SendMessageCommand } from "@aws-sdk/client-sqs";
-import { nanoid } from 'nanoid';
+import { createId } from '@paralleldrive/cuid2';
 import { EMAIL_QUEUE_URL, TODO_TABLE_NAME } from './config';
 import { Todo, dynamoDBClient, handleError, sqsClient } from './helper';
 
@@ -10,7 +10,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         if (!event.body) throw Error();
 
         const todo = await Todo.parseAsync(JSON.parse(event.body));
-        const id = nanoid();
+        const id = createId();
 
         await dynamoDBClient.send(new PutItemCommand({
             TableName: TODO_TABLE_NAME,

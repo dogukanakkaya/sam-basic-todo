@@ -5,11 +5,11 @@ Globals:
   Function:
     Timeout: 10
 Resources:
-  InsertTodoFunction:
+  CreateTodoFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: todo/
-      Handler: insert.lambdaHandler
+      Handler: create.lambdaHandler
       Runtime: nodejs18.x
       Architectures:
         - x86_64
@@ -31,7 +31,10 @@ Resources:
         Target: es2020
         Sourcemap: true
         EntryPoints:
-          - insert.ts
+          - create.ts
+    DependsOn:
+      - DynamoDBTodoTable
+      - EmailQueue
   DeleteTodoFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -58,6 +61,8 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - delete.ts
+    DependsOn:
+      - DynamoDBTodoTable
   FetchTodosFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -86,6 +91,32 @@ Resources:
           - fetch.ts
     DependsOn:
       - DynamoDBTodoTable
+  EmailQueueConsumer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: todo/
+      Handler: email-queue-consumer.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Events:
+        EmailSQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt EmailQueue.Arn
+      Role: !GetAtt LambdaSQSRole.Arn
+      Environment:
+        Variables:
+          EMAIL_QUEUE_URL: !GetAtt EmailQueue.QueueUrl
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+          - email-queue-consumer.ts
+    DependsOn:
       - EmailQueue
   DynamoDBTodoTable:
     Type: AWS::DynamoDB::Table
@@ -133,11 +164,16 @@ Resources:
                 Action:
                   - dynamodb:PutItem
                   - dynamodb:GetItem
+                  - dynamodb:DeleteItem
                 Resource: !GetAtt DynamoDBTodoTable.Arn
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                Resource: "*"
 Outputs:
-  InsertTodoFunction:
-    Description: Insert Todo Lambda Function ARN
-    Value: !GetAtt InsertTodoFunction.Arn
+  CreateTodoFunction:
+    Description: Create Todo Lambda Function ARN
+    Value: !GetAtt CreateTodoFunction.Arn
   DynamoDBTodoTableName:
     Value: !Ref DynamoDBTodoTable
   EmailQueueArn:

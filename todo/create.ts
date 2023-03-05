@@ -18,13 +18,13 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                 id: { S: id },
                 title: { S: todo.title },
                 description: { S: todo.description },
-                assignee: { S: todo.description }
+                assignee: { S: todo.assignee }
             }
         }));
 
         await sqsClient.send(new SendMessageCommand({
             QueueUrl: EMAIL_QUEUE_URL,
-            MessageBody: JSON.stringify({ todo }),
+            MessageBody: JSON.stringify({ id, ...todo }),
         }));
 
         return {

@@ -10,7 +10,7 @@ Globals:
       - x86_64
     Environment:
       Variables:
-        TODO_TABLE_NAME: !Sub "${DynamoDBTodoTable}"
+        TODO_TABLE_NAME: !Ref DynamoDBTodoTable
 Resources:
   CreateTodoFunction:
     Type: AWS::Serverless::Function

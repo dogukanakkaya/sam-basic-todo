@@ -36,11 +36,10 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
             }
         }));
 
-        const x = await sqsClient.send(new SendMessageCommand({
+        await sqsClient.send(new SendMessageCommand({
             QueueUrl: config.EMAIL_QUEUE_URL,
             MessageBody: JSON.stringify({ todo }),
         }));
-        console.log("message sent", x.MessageId);
 
         return {
             statusCode: 200,

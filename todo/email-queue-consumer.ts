@@ -1,10 +1,10 @@
 import { SQSEvent } from 'aws-lambda';
-import { EMAIL_QUEUE_URL, REGION } from './config';
+import { EMAIL_QUEUE_URL } from './config';
 import { Todo, sqsClient } from './helper';
 import { DeleteMessageCommand } from '@aws-sdk/client-sqs';
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
-const sesClient = new SESClient({ region: REGION }); // Replace with the appropriate region
+const sesClient = new SESClient({});
 
 export const lambdaHandler = async (event: SQSEvent): Promise<void> => {
     try {
